@@ -6,6 +6,29 @@
 
 Connects to Microsoft Azure Service Bus using Ballerina.
 
+<!-- TOC -->
+
+- [Introduction](#introduction)
+    - [What is Azure Service Bus?](#what-is-azure-service-bus)
+    - [Key features of Azure Service Bus](#key-features-of-azure-service-bus)
+    - [Connector Overview](#connector-overview)
+- [Supported versions & Limitations](#supported-versions-&-limitations)
+    - [Supported Versions](#supported-versions)
+    - [Limitations](#limitations)
+- [Prerequisites](#prerequisites)
+- [Configuration](#configuration)
+    - [Getting the authorization credentials](#getting-the-authorization-credentials)
+        - [For Service Bus Queues](#for-service-bus-queues)
+        - [For Service Bus Topics and Subscriptions](#for-service-bus-topics-and-subscriptions)
+- [Quickstart](#quickstarts)
+- [Samples](#samples)
+- [Building the Source](#building-the-source)
+- [Contributing to Ballerina](#contributing-to-ballerina)
+- [Code of Conduct](#code-of-conduct)
+- [Useful Links](#useful-links)
+
+<!-- /TOC -->
+
 # Introduction
 
 ## What is Azure Service Bus?
@@ -23,36 +46,15 @@ facilities, including transport-level security (TLS). Clients can be authorized 
 or [Azure Active Directory](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-authentication-and-authorization) 
 role-based security.
 
-### Azure Service Bus Concepts
-
-1. Namespaces.
-   A namespace is a container for all messaging components. We can have multiple queues and topics in a namespace. 
-   The namespaces serve as application containers. In terms of terminology of other brokers, a namespace can be compared 
-   to a "server", but the concepts aren't the same.
-   
-2. Queues.
-   Messages are sent to and received from queues. The messages are stored in queues until the receiving application is 
-   available to receive and process them. Messages are ordered and time stamped on arrival in queues. Messages are 
-   delivered in pull mode where messages are delivered only when requested.
-   ![image](docs/images/Azure_Service_Bus_Queue.png)
-
-3. Topics.
-   Topics are used to send and receive messages in publisher/subscriber models. Topics can have multiple, independent 
-   subscriptions that are like queues, which attach to the topic from the receiver side. While a queue is often used 
-   for point-to-point communication, topics are used in publish/subscribe scenarios. A subscriber to a topic can receive 
-   a copy of each message sent to that topic. You can define rules on a subscription. A subscription rule has a filter 
-   to define a condition for the message to be copied into the subscription and an optional action that can modify 
-   message metadata.
-   ![image](docs/images/Azure_Service_Bus_Topic_Subscription.png)
-
 ## Key Features of Azure Service Bus
 * Load-balancing work across competing workers
 * Safely routing and transferring data and control across service and application boundaries
 * Coordinating transactional work that requires a high-degree of reliability
 
 ## Connector Overview
-The Azure Service Bus Ballerina Connector is used to connect to the Azure Service Bus to send and receive messages. 
-You can perform actions such as send to queue, send to topic, receive from queue, receive from subscription, etc.
+The [Azure Service Bus Ballerina Connector](https://docs.central.ballerina.io/ballerinax/asb/latest) is used to connect to the [Azure Service Bus](https://docs.microsoft.com/en-us/azure/service-bus-messaging/) to send and receive messages. 
+This connector is implemented using Ballerina and this connector can be imported and used in a Ballerina program. 
+You can perform actions such as sending and receiving from a queue, publishing and subscribing to a topic, etc.
 
 ![image](docs/images/Azure_Service_Bus_Ballerina_Connector.png)
 
@@ -60,33 +62,48 @@ You can perform actions such as send to queue, send to topic, receive from queue
 and it can be used from any AMQP 1.0 compliant protocol client. 
 This connector makes use of an AMQP 1.0 compliant protocol client for interoperability.
 
-Service Bus provides a Microsoft supported native API and this connector makes use of this public API. 
+Service Bus provides a [Microsoft supported Java SDK](https://docs.microsoft.com/en-us/java/api/overview/azure/servicebus?view=azure-java-stable) 
+and this connector makes use of this public API, [microsoft-azure-servicebus v3.5.1](https://docs.microsoft.com/en-us/java/api/overview/azure/servicebus/client?view=azure-java-stable&preserve-view=true) for data access. 
 Service Bus service APIs access the Service Bus service directly, and perform various management operations at the 
 entity level, rather than at the namespace level (such as sending a message to a queue). This connector supports these 
-basic operations. These APIs use Shared Access Signature(SAS) authentication and this connector supports SAS authentication.
+basic operations. These APIs use [Shared Access Signature(SAS)]((https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-sas)) authentication and this connector supports SAS authentication.
+
+# Supported Versions & Limitations
+
+## Supported Versions
+|                     |    Version                  |
+|:-------------------:|:---------------------------:|
+| Ballerina Language  | Swan-Lake-Alpha5            |
+| Service Bus API     | v3.5.1                      |
+
+## Limitations
+This Connector doesn't support [Azure Active Directory](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-authentication-and-authorization) Authentication.
 
 # Prerequisites
 
-* An Azure account and subscription.
+* **[Ballerina](https://ballerina.io/)** SLAlpha5 Installed.
+  
+  Ballerina Swan Lake Alpha 5 is required.
+* **[Java 11](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)** Installed. 
+  
+  Java Development Kit (JDK) with version 11 is required.
+  
+* **An Azure account and subscription**. 
+  
   If you don't have an Azure subscription, [sign up for a free Azure account](https://azure.microsoft.com/free/).
-
-* A Service Bus namespace.
+  
+* **A Service Bus namespace**.
+  
   If you don't have [a service bus namespace](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-create-namespace-portal),
-  learn how to create your Service Bus namespace.
-
-* A messaging entity, such as a queue, topic or subscription.
+  learn how to [create your Service Bus namespace](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-create-namespace-portal#create-a-namespace-in-the-azure-portal).
+  
+* **A messaging entity**, such as a queue, topic or subscription.
+  
   If you don't have these items, learn how to
     * [Create a queue in the Azure portal](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quickstart-portal#create-a-queue-in-the-azure-portal)
     * [Create a Topic using the Azure portal](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quickstart-topics-subscriptions-portal#create-a-topic-using-the-azure-portal)
     * [Create Subscriptions to the Topic](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quickstart-topics-subscriptions-portal#create-subscriptions-to-the-topic)
-
-* Java 11 Installed
-  Java Development Kit (JDK) with version 11 is required.
-
-* Ballerina SLAlpha5 Installed
-  Ballerina Swan Lake Alpha 5 is required.
-
-* Shared Access Signature (SAS) Authentication Credentials
+* **Shared Access Signature (SAS) Authentication Credentials**
     * Connection String
     * Entity Path
 
@@ -123,15 +140,6 @@ to/from the queue/topic/subscription.
 5. [Create a subscription in the Azure portal & get Entity Path](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quickstart-topics-subscriptions-portal#create-subscriptions-to-the-topic). 
    It’s in the format ‘topicName/subscriptions/subscriptionName’.
    
-
-# Supported Versions & Limitations
-
-## Supported Versions
-|                     |    Version                  |
-|:-------------------:|:---------------------------:|
-| Ballerina Language  | Swan-Lake-Alpha5            |
-| Service Bus API     | v3.5.1                      |
-
 # Quickstart(s)
 
 ## Send and Receive Messages from the Azure Service Bus Queue
@@ -140,17 +148,17 @@ This is the simplest scenario to send and receive messages from an Azure Service
 a connection string of the name space and an entity path name of the queue you want to send and receive messages from. 
 You must have the following prerequisites in order to obtain these configurations.
 
-* An Azure account and subscription.
+* **An Azure account and subscription**.
   If you don't have an Azure subscription, [sign up for a free Azure account](https://azure.microsoft.com/free/).
 
-* A Service Bus namespace.
+* **A Service Bus namespace**.
   If you don't have [a service bus namespace](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-create-namespace-portal),
   learn how to create your Service Bus namespace.
   
-* Connection String.
+* **Connection String**.
   [Get the connection string](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quickstart-portal#get-the-connection-string) from the service bus namespace you created.
 
-* Entity Path.
+* **Entity Path**.
   A messaging entity, in this case a queue. If you don't have these items, learn how to [Create a queue in the Azure portal](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quickstart-portal#create-a-queue-in-the-azure-portal) 
   and get the name of the queue you created. The Entity path is in the format ‘queueName’.
   (Note: The Entity path is in the format ‘topicName‘ for a topic and ‘topicName/subscriptions/subscriptionName’ for a 
@@ -250,17 +258,17 @@ This is the simplest scenario to listen to messages from an Azure Service Bus qu
 string of the name space and an entity path name of the queue you want to listen messages from. You must have the 
 following prerequisites in order to obtain these configurations.
 
-* An Azure account and subscription.
+* **An Azure account and subscription**.
   If you don't have an Azure subscription, [sign up for a free Azure account](https://azure.microsoft.com/free/).
 
-* A Service Bus namespace.
+* **A Service Bus namespace**.
   If you don't have [a service bus namespace](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-create-namespace-portal),
   learn how to create your Service Bus namespace.
 
-* Connection String.
+* **Connection String**.
   [Get the connection string](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quickstart-portal#get-the-connection-string) from the service bus namespace you created.
 
-* Entity Path.
+* **Entity Path**.
   A messaging entity, in this case a queue. If you don't have these items, learn how to [Create a queue in the Azure portal](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-quickstart-portal#create-a-queue-in-the-azure-portal)
   and get the name of the queue you created. The Entity path is in the format ‘queueName’.
   (Note: The Entity path is in the format ‘topicName‘ for a topic and ‘topicName/subscriptions/subscriptionName’ for a
